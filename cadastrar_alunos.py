@@ -1,30 +1,44 @@
-# ------------------- Cadastro de Alunos -------------------
+alunos = []
+
+# ------------------- Cadastro de alunos -------------------
 def cadastrar_aluno():
     from funcoes import limpar_tela
     limpar_tela()
-    print("------ Cadastro de Alunos -------")
-    nome = input("Digite o nome do aluno: ")
-    print(nome)
+    print("------ Cadastro de alunos -------")
 
-# ------------------- Listar Alunos -------------------
+    nome = input("Digite o nome do Aluno: ")
+    matricula = input("Digite a matrícula: ")
+    data_nasc = input("Digite a data de nascimento: ")
+  
+    aluno = {"Nome": nome, "Matrícula": matricula, "Data de Nascimento": data_nasc}
+
+    alunos.append(aluno)
+    print("\n Aluno cadastrado com sucesso!")
+
+# ------------------- Listar alunos -------------------
 def listar_alunos():
     from funcoes import limpar_tela
     limpar_tela()
-    print("------ Listar Alunos -------")
-    print("W.I.P.")
+    print("------ Listar alunos -------")
 
-# ------------------- Editar Alunos -------------------
+    if not alunos:
+        print("Nenhum Aluno cadastrado ainda.")
+    else:
+        for i, d in enumerate(alunos, start=1):
+            print(f"{i}. Aluno: {d['Nome']}, Matrícula: {d['Matrícula']}, Data de Nascimento: {d['Data de Nascimento']}")
+
+# ------------------- Editar alunos -------------------
 def editar_aluno():
     from funcoes import limpar_tela
     limpar_tela()
-    print("------ Cadastro de Alunos -------")
+    print("------ Cadastro de alunos -------")
     print("W.I.P.")
 
-# ------------------- Excluir de Alunos -------------------
+# ------------------- Excluir de alunos -------------------
 def excluir_aluno():
     from funcoes import limpar_tela
     limpar_tela()
-    print("------ Excluir de Alunos -------")
+    print("------ Excluir de alunos -------")
     print("W.I.P.")
 
 
@@ -53,7 +67,7 @@ def menu_alunos():
         elif opcao == "5":
             break
         else:
-            print("⚠️ Opção inválida! Tente novamente.\n")
+            print("Opção inválida! Tente novamente.\n")
             input("ENTER para continuar...")
             continue
 
