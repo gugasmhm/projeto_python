@@ -67,7 +67,7 @@ def menu_disciplina():
         elif opcao == "5":
             break
         else:
-            print("⚠️ Opção inválida! Tente novamente.\n")
+            print("Opção inválida! Tente novamente.\n")
             input("ENTER para continuar...")
             continue
 
