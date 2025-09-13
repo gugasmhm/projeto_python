@@ -26,7 +26,7 @@ def listar_disciplina():
         print("Nenhuma disciplina cadastrada ainda.")
     else:
         for i, d in enumerate(disciplinas, start=1):
-            print(f"{i}. Disciplinas {d['Nome']}, Turno: {d['Turno']}, Sala: {d['Sala']}, Professor: {d['Professor']}")
+            print(f"{i}. Disciplina: {d['Nome']}, Turno: {d['Turno']}, Sala: {d['Sala']}, Professor: {d['Professor']}")
 
 # ------------------- Editar disciplinas -------------------
 def editar_disciplina():
