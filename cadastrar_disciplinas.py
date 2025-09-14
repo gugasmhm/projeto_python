@@ -47,7 +47,7 @@ def menu_disciplina():
     while True:
         from funcoes import limpar_tela
         limpar_tela()
-        print("===== MENU Disciplina=====")
+        print("===== MENU Disciplina =====")
         print("1 - Cadastrar disciplina")
         print("2 - Listar disciplina")
         print("3 - Editar disciplina")
@@ -70,5 +70,6 @@ def menu_disciplina():
             print("Opção inválida! Tente novamente.\n")
             input("ENTER para continuar...")
             continue
+
 
         input("\nENTER para voltar ao menu de disciplinas...")
