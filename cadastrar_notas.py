@@ -26,7 +26,7 @@ def menu_notas():
     while True:
         from funcoes import limpar_tela
         limpar_tela()
-        print("===== MENU nota=====")
+        print("===== MENU Notas =====")
         print("1 - Cadastrar nota")
         print("3 - Editar nota")
         print("3 - Excluir nota")
@@ -46,5 +46,6 @@ def menu_notas():
             print("⚠️ Opção inválida! Tente novamente.\n")
             input("ENTER para continuar...")
             continue
+
 
         input("\nENTER para voltar ao menu de notas...")
