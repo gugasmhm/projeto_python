@@ -47,7 +47,7 @@ def menu_alunos():
     while True:
         from funcoes import limpar_tela
         limpar_tela()
-        print("===== MENU Alunos=====")
+        print("===== MENU Alunos =====")
         print("1 - Cadastrar aluno")
         print("2 - Listar alunos")
         print("3 - Editar aluno")
@@ -70,5 +70,6 @@ def menu_alunos():
             print("Opção inválida! Tente novamente.\n")
             input("ENTER para continuar...")
             continue
+
 
         input("\nENTER para voltar ao menu de alunos...")
