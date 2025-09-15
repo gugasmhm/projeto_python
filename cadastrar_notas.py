@@ -43,9 +43,10 @@ def menu_notas():
         elif opcao == "4":
             break
         else:
-            print("⚠️ Opção inválida! Tente novamente.\n")
+            print("Opção inválida! Tente novamente.\n")
             input("ENTER para continuar...")
             continue
 
 
         input("\nENTER para voltar ao menu de notas...")
+
