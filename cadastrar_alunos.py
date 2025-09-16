@@ -1,3 +1,4 @@
+import os
 alunos = []
 
 # ------------------- Cadastro de alunos -------------------
@@ -9,11 +10,18 @@ def cadastrar_aluno():
     nome = input("Digite o nome do Aluno: ")
     matricula = input("Digite a matrícula: ")
     data_nasc = input("Digite a data de nascimento: ")
-  
+
     aluno = {"Nome": nome, "Matrícula": matricula, "Data de Nascimento": data_nasc}
 
     alunos.append(aluno)
+    os.makedirs("banco_de_dados", exist_ok=True)
+
+    with open("banco_de_dados/alunos.txt", "a", encoding="utf-8") as f:
+        f.write(f"{nome};{matricula};{data_nasc}\n")
+
     print("\n Aluno cadastrado com sucesso!")
+    return aluno
+
 
 # ------------------- Listar alunos -------------------
 def listar_alunos():
@@ -21,11 +29,20 @@ def listar_alunos():
     limpar_tela()
     print("------ Listar alunos -------")
 
-    if not alunos:
-        print("Nenhum Aluno cadastrado ainda.")
+    try:
+        with open("banco_de_dados/alunos.txt", "r", encoding="utf-8") as f:
+            linhas = f.readlines()
+    except FileNotFoundError:
+        print("Nenhum aluno cadastrado ainda.")
+        return
+
+    if not linhas:
+        print("Nenhum aluno cadastrado ainda.")
     else:
-        for i, d in enumerate(alunos, start=1):
-            print(f"{i}. Aluno: {d['Nome']}, Matrícula: {d['Matrícula']}, Data de Nascimento: {d['Data de Nascimento']}")
+        for i, linha in enumerate(linhas, start=1):
+            nome, matricula, data_nasc = linha.strip().split(";")
+            print(f"{i}. Aluno: {nome}, Matrícula: {matricula}, Data de Nascimento: {data_nasc}")
+
 
 # ------------------- Editar alunos -------------------
 def editar_aluno():
@@ -33,6 +50,7 @@ def editar_aluno():
     limpar_tela()
     print("------ Cadastro de alunos -------")
     print("W.I.P.")
+
 
 # ------------------- Excluir de alunos -------------------
 def excluir_aluno():
@@ -47,7 +65,7 @@ def menu_alunos():
     while True:
         from funcoes import limpar_tela
         limpar_tela()
-        print("===== MENU Alunos =====")
+        print("===== MENU Alunos=====")
         print("1 - Cadastrar aluno")
         print("2 - Listar alunos")
         print("3 - Editar aluno")
@@ -70,6 +88,5 @@ def menu_alunos():
             print("Opção inválida! Tente novamente.\n")
             input("ENTER para continuar...")
             continue
-
 
         input("\nENTER para voltar ao menu de alunos...")

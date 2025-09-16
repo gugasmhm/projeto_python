@@ -1,3 +1,4 @@
+import os
 disciplinas = []
 
 # ------------------- Cadastro de disciplinas -------------------
@@ -14,7 +15,14 @@ def cadastrar_disciplina():
     disciplina = {"Nome": nome, "Turno": turno, "Sala": sala, "Professor": professor}
 
     disciplinas.append(disciplina)
-    print("\n Disciplina cadastrada com sucesso!")
+    os.makedirs("banco_de_dados", exist_ok=True)
+
+    with open("banco_de_dados/disciplinas.txt", "a", encoding="utf-8") as f:
+        f.write(f"{nome};{turno};{sala};{professor}\n")
+
+    print("\nDisciplina cadastrada com sucesso!")
+    return disciplina
+
 
 # ------------------- Listar disciplinas -------------------
 def listar_disciplina():
@@ -22,11 +30,20 @@ def listar_disciplina():
     limpar_tela()
     print("------ Listar disciplinas -------")
 
-    if not disciplinas:
+    try:
+        with open("banco_de_dados/disciplinas.txt", "r", encoding="utf-8") as f:
+            linhas = f.readlines()
+    except FileNotFoundError:
+        print("Nenhuma disciplina cadastrada ainda.")
+        return
+
+    if not linhas:
         print("Nenhuma disciplina cadastrada ainda.")
     else:
-        for i, d in enumerate(disciplinas, start=1):
-            print(f"{i}. Disciplina: {d['Nome']}, Turno: {d['Turno']}, Sala: {d['Sala']}, Professor: {d['Professor']}")
+        for i, linha in enumerate(linhas, start=1):
+            nome, turno, sala, professor = linha.strip().split(";")
+            print(f"{i}. Disciplina: {nome}, Turno: {turno}, Sala: {sala}, Professor: {professor}")
+
 
 # ------------------- Editar disciplinas -------------------
 def editar_disciplina():
@@ -47,7 +64,7 @@ def menu_disciplina():
     while True:
         from funcoes import limpar_tela
         limpar_tela()
-        print("===== MENU Disciplina =====")
+        print("===== MENU Disciplina=====")
         print("1 - Cadastrar disciplina")
         print("2 - Listar disciplina")
         print("3 - Editar disciplina")
@@ -70,6 +87,5 @@ def menu_disciplina():
             print("Opção inválida! Tente novamente.\n")
             input("ENTER para continuar...")
             continue
-
 
         input("\nENTER para voltar ao menu de disciplinas...")
