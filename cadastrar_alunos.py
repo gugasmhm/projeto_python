@@ -16,12 +16,9 @@ def cadastrar_aluno():
     alunos.append(aluno)
     os.makedirs("banco_de_dados", exist_ok=True)
 
-    #with open("banco_de_dados/alunos.txt", "a", encoding="utf-8") as f:
-    #    f.write(f"{nome};{matricula};{data_nasc}\n")
-    f = open("banco_de_dados/alunos.txt", "a", encoding="utf-8")
-    f.write(f"{nome};{matricula};{data_nasc}\n")
-    f.close()
-
+    with open("banco_de_dados/alunos.txt", "a", encoding="utf-8") as f:
+        f.write(f"{nome};{matricula};{data_nasc}\n")
+    
     print("\n Aluno cadastrado com sucesso!")
     return aluno
 
@@ -33,11 +30,9 @@ def listar_alunos():
     print("------ Listar alunos -------")
 
     try:
-        #with open("banco_de_dados/alunos.txt", "r", encoding="utf-8") as f:
-        #    linhas = f.readlines()
-        f = open("banco_de_dados/alunos.txt", "r", encoding="utf-8")
-        linhas = f.readlines()
-        f.close()
+        with open("banco_de_dados/alunos.txt", "r", encoding="utf-8") as f:
+            linhas = f.readlines()
+        
     except FileNotFoundError:
         print("Nenhum aluno cadastrado ainda.")
         return

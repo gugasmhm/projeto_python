@@ -17,12 +17,9 @@ def cadastrar_disciplina():
     disciplinas.append(disciplina)
     os.makedirs("banco_de_dados", exist_ok=True)
 
-    #with open("banco_de_dados/disciplinas.txt", "a", encoding="utf-8") as f:
-    #    f.write(f"{nome};{turno};{sala};{professor}\n")
-    f = open("banco_de_dados/disciplinas.txt", "a", encoding="utf-8")
-    f.write(f"{nome};{turno};{sala};{professor}\n")
-    f.close()
-
+    with open("banco_de_dados/disciplinas.txt", "a", encoding="utf-8") as f:
+        f.write(f"{nome};{turno};{sala};{professor}\n")
+    
     print("\nDisciplina cadastrada com sucesso!")
     return disciplina
 
@@ -34,11 +31,9 @@ def listar_disciplina():
     print("------ Listar disciplinas -------")
 
     try:
-        #with open("banco_de_dados/disciplinas.txt", "r", encoding="utf-8") as f:
-        #    linhas = f.readlines()
-        f = open("banco_de_dados/disciplinas.txt", "r", encoding="utf-8")
-        linhas = f.readlines()
-        f.close()
+        with open("banco_de_dados/disciplinas.txt", "r", encoding="utf-8") as f:
+            linhas = f.readlines()
+        
     except FileNotFoundError:
         print("Nenhuma disciplina cadastrada ainda.")
         return
