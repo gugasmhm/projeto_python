@@ -3,12 +3,12 @@ alunos = []
 
 # ------------------- Cadastro de alunos -------------------
 def cadastrar_aluno():
-    from funcoes import limpar_tela
+    from funcoes import limpar_tela, validar_matricula
     limpar_tela()
     print("------ Cadastro de alunos -------")
 
     nome = input("Digite o nome do Aluno: ")
-    matricula = input("Digite a matrícula: ")
+    matricula = validar_matricula()
     data_nasc = input("Digite a data de nascimento: ")
 
     aluno = {"Nome": nome, "Matrícula": matricula, "Data de Nascimento": data_nasc}
@@ -19,7 +19,7 @@ def cadastrar_aluno():
     with open("banco_de_dados/alunos.txt", "a", encoding="utf-8") as f:
         f.write(f"{nome};{matricula};{data_nasc}\n")
     
-    print("\n Aluno cadastrado com sucesso!")
+    print("\nAluno cadastrado com sucesso!")
     return aluno
 
 
@@ -55,10 +55,55 @@ def editar_aluno():
 
 # ------------------- Excluir de alunos -------------------
 def excluir_aluno():
-    from funcoes import limpar_tela
+    from funcoes import limpar_tela, validar_matricula
     limpar_tela()
-    print("------ Excluir de alunos -------")
-    print("W.I.P.")
+    print("------ Excluir aluno -------")
+
+    try:
+        with open("banco_de_dados/alunos.txt", "r", encoding="utf-8") as f:
+            linhas = f.readlines()
+    except FileNotFoundError:
+        print("Nenhum aluno cadastrado ainda.")
+        return
+
+    if not linhas:
+        print("Nenhum aluno cadastrado ainda.")
+        return
+
+    matricula_escolhida = validar_matricula()
+
+    aluno_encontrado = None
+    idx_remover = None
+
+    for idx, linha in enumerate(linhas):
+        try:
+            nome, matricula, data_nasc = linha.strip().split(";")
+        except ValueError:
+            continue
+        if matricula == matricula_escolhida:
+            aluno_encontrado = (nome, matricula, data_nasc)
+            idx_remover = idx
+            break
+
+    if not aluno_encontrado:
+        print("\nMatrícula não encontrada.")
+        return
+
+    nome, matricula, data_nasc = aluno_encontrado
+    confirmar = input(
+        f"\nEncontrado: {nome}, Matrícula: {matricula}, Data de Nascimento: {data_nasc}\n"
+        "Deseja realmente excluir este aluno? [S/N]: "
+    ).strip().lower()
+
+    if confirmar != "s":
+        print("Operação cancelada.")
+        return
+
+    nova_lista = [l for i, l in enumerate(linhas) if i != idx_remover]
+    with open("banco_de_dados/alunos.txt", "w", encoding="utf-8") as f:
+        f.writelines(nova_lista)
+
+    print(f"\nAluno removido com sucesso: {nome}, Matrícula: {matricula}")
 
 
 # ------------------- Menu Alunos -------------------
@@ -91,3 +136,4 @@ def menu_alunos():
             continue
 
         input("\nENTER para voltar ao menu de alunos...")
+        
