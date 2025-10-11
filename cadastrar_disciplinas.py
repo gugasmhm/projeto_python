@@ -57,8 +57,55 @@ def editar_disciplina():
 def excluir_disciplina():
     from funcoes import limpar_tela
     limpar_tela()
-    print("------ Excluir de disciplinas -------")
-    print("W.I.P.")
+    print("------ Excluir disciplinas -------")
+
+    caminho = "banco_de_dados/disciplinas.txt"
+
+    try:
+        with open(caminho, "r", encoding="utf-8") as f:
+            linhas = f.readlines()
+    except FileNotFoundError:
+        print("Nenhuma disciplina cadastrada ainda.")
+        return
+
+    if not linhas:
+        print("Nenhuma disciplina cadastrada ainda.")
+        return
+
+    print("\nDisciplinas cadastradas:")
+    for i, linha in enumerate(linhas, start=1):
+        try:
+            nome, turno, sala, professor = linha.strip().split(";")
+            print(f"{i}. {nome} | Turno: {turno} | Sala: {sala} | Professor: {professor}")
+        except ValueError:
+            continue
+
+    try:
+        indice = int(input("\nDigite o número da disciplina que deseja excluir: "))
+        if indice < 1 or indice > len(linhas):
+            print("Número inválido.")
+            return
+    except ValueError:
+        print("Entrada inválida. Digite um número.")
+        return
+
+    linha_remover = linhas[indice - 1]
+    nome, turno, sala, professor = linha_remover.strip().split(";")
+
+    confirmar = input(
+        f"\nConfirma a exclusão da disciplina '{nome}' (Professor: {professor})? [S/N]: "
+    ).strip().lower()
+
+    if confirmar != "s":
+        print("\nOperação cancelada.")
+        return
+
+    novas_linhas = [l for i, l in enumerate(linhas) if i != indice - 1]
+
+    with open(caminho, "w", encoding="utf-8") as f:
+        f.writelines(novas_linhas)
+
+    print(f"\nDisciplina '{nome}' removida com sucesso!")
 
 # ------------------- Menu disciplinas -------------------
 def menu_disciplina():

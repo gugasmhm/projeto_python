@@ -10,9 +10,9 @@ def menu():
         print(f"{'  -%@@@@@+-%@@@@@*  =@@@ -@@@@@@@  =%@@@@ -@@- -@@@@@= ':^80}")
         print("")
         print("===== MENU Principal =====")
-        print("1 - Cadastrar Aluno")
-        print("2 - Cadastrar Disciplinas")
-        print("3 - Cadastrar Notas")
+        print("1 - Menu Aluno")
+        print("2 - Menu Disciplinas")
+        print("3 - Menu Notas")
         print("4 - Consulta Notas")
         print("5 - Sair")
 
