@@ -1,18 +1,126 @@
+import sqlite3
 import os
-
-# ------------------- Funções Auxiliares -------------------
-def limpar_tela():
-    """Limpa a tela (compatível com Windows, Linux e macOS)"""
-    os.system("cls" if os.name == "nt" else "clear")
-
 import re
 
-# ------------------- Validador de Matrícula -------------------
-def validar_matricula():
-    padrao = re.compile(r"^\d{12}$")  # exatamente 12 dígitos
+DB_PATH = "banco_de_dados/banco_escolar.db"
+
+
+def limpar_tela():
+    """Limpa a tela (compatível com Windows, Linux e macOS)."""
+    os.system("cls" if os.name == "nt" else "clear")
+
+
+def conectar():
+    """Cria pasta de banco se necessário e retorna conexão com sqlite3."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row  # permite acessar colunas por nome
+    criar_tabelas(conn)
+    return conn
+
+
+def criar_tabelas(conn):
+    """Cria tabelas básicas se não existirem."""
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS alunos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            matricula TEXT UNIQUE NOT NULL,
+            data_nascimento TEXT
+        );
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS disciplinas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            turno TEXT,
+            sala TEXT,
+            professor TEXT
+        );
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS notas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            aluno_id INTEGER NOT NULL,
+            disciplina_id INTEGER NOT NULL,
+            nota REAL NOT NULL CHECK(nota >= 0 AND nota <= 10),
+            FOREIGN KEY(aluno_id) REFERENCES alunos(id) ON DELETE CASCADE,
+            FOREIGN KEY(disciplina_id) REFERENCES disciplinas(id) ON DELETE CASCADE
+        );
+        """
+    )
+    conn.commit()
+
+
+def executar_query(query, params=(), fetchone=False, fetchall=False):
+    """
+    Executa INSERT/UPDATE/DELETE/SELECT simplificado.
+    Retorna o resultado quando fetchone/fetchall são usados.
+    """
+    conn = conectar()
+    cur = conn.cursor()
+    try:
+        cur.execute(query, params)
+        conn.commit()
+        if fetchone:
+            return cur.fetchone()
+        if fetchall:
+            return cur.fetchall()
+        return cur.lastrowid
+    except sqlite3.IntegrityError as e:
+        raise
+    finally:
+        conn.close()
+
+
+def validar_matricula(prompt="Digite a matrícula (12 dígitos): "):
+    """Valida matrícula com exatamente 12 dígitos."""
+    padrao = re.compile(r"^\d{12}$")
     while True:
-        matricula = input("Digite a matrícula (12 dígitos): ").strip()
+        matricula = input(prompt).strip()
         if padrao.match(matricula):
             return matricula
         else:
             print("Matrícula inválida! Digite exatamente 12 números.\n")
+
+
+# ---------- Helpers para menus e buscas ----------
+def obter_aluno_por_matricula(matricula):
+    row = executar_query(
+        "SELECT * FROM alunos WHERE matricula = ?",
+        (matricula,),
+        fetchone=True,
+    )
+    return row
+
+
+def listar_alunos_todos():
+    rows = executar_query("SELECT * FROM alunos ORDER BY nome", fetchall=True)
+    return rows or []
+
+
+def listar_disciplinas_todas():
+    rows = executar_query("SELECT * FROM disciplinas ORDER BY nome", fetchall=True)
+    return rows or []
+
+
+def obter_disciplina_por_id(disc_id):
+    return executar_query(
+        "SELECT * FROM disciplinas WHERE id = ?",
+        (disc_id,),
+        fetchone=True,
+    )
+
+
+def obter_aluno_por_id(aluno_id):
+    return executar_query(
+        "SELECT * FROM alunos WHERE id = ?",
+        (aluno_id,),
+        fetchone=True,
+    )

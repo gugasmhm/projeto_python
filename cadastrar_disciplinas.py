@@ -1,126 +1,96 @@
-import os
-disciplinas = []
+from funcoes import (
+    limpar_tela,
+    executar_query,
+    listar_disciplinas_todas,
+)
+import sqlite3
 
-# ------------------- Cadastro de disciplinas -------------------
+
 def cadastrar_disciplina():
-    from funcoes import limpar_tela
     limpar_tela()
     print("------ Cadastro de disciplinas -------")
+    nome = input("Digite o nome da disciplina: ").strip()
+    turno = input("Digite o turno (Manhã/Tarde/Noite) (opcional): ").strip() or None
+    sala = input("Digite a sala (opcional): ").strip() or None
+    professor = input("Digite o nome do professor (opcional): ").strip() or None
 
-    nome = input("Digite o nome da disciplina: ")
-    turno = input("Digite o turno (Manhã/Tarde/Noite): ")
-    sala = input("Digite a sala: ")
-    professor = input("Digite o nome do professor: ")
-
-    disciplina = {"Nome": nome, "Turno": turno, "Sala": sala, "Professor": professor}
-
-    disciplinas.append(disciplina)
-    os.makedirs("banco_de_dados", exist_ok=True)
-
-    with open("banco_de_dados/disciplinas.txt", "a", encoding="utf-8") as f:
-        f.write(f"{nome};{turno};{sala};{professor}\n")
-    
-    print("\nDisciplina cadastrada com sucesso!")
-    return disciplina
+    try:
+        executar_query(
+            "INSERT INTO disciplinas (nome, turno, sala, professor) VALUES (?, ?, ?, ?)",
+            (nome, turno, sala, professor),
+        )
+        print("\nDisciplina cadastrada com sucesso!")
+    except sqlite3.IntegrityError:
+        print("\n❌ Erro ao cadastrar disciplina.")
 
 
-# ------------------- Listar disciplinas -------------------
 def listar_disciplina():
-    from funcoes import limpar_tela
     limpar_tela()
     print("------ Listar disciplinas -------")
-
-    try:
-        with open("banco_de_dados/disciplinas.txt", "r", encoding="utf-8") as f:
-            linhas = f.readlines()
-        
-    except FileNotFoundError:
+    rows = listar_disciplinas_todas()
+    if not rows:
         print("Nenhuma disciplina cadastrada ainda.")
         return
-
-    if not linhas:
-        print("Nenhuma disciplina cadastrada ainda.")
-    else:
-        for i, linha in enumerate(linhas, start=1):
-            nome, turno, sala, professor = linha.strip().split(";")
-            print(f"{i}. Disciplina: {nome}, Turno: {turno}, Sala: {sala}, Professor: {professor}")
+    for r in rows:
+        print(f"{r['id']}. Disciplina: {r['nome']}, Turno: {r['turno']}, Sala: {r['sala']}, Professor: {r['professor']}")
 
 
-# ------------------- Editar disciplinas -------------------
 def editar_disciplina():
-    from funcoes import limpar_tela
     limpar_tela()
-    print("------ Cadastro de disciplinas -------")
-    print("W.I.P.")
-
-# ------------------- Excluir de disciplinas -------------------
-def excluir_disciplina():
-    from funcoes import limpar_tela
-    limpar_tela()
-    print("------ Excluir disciplinas -------")
-
-    caminho = "banco_de_dados/disciplinas.txt"
-
+    print("------ Editar disciplina -------")
+    listar_disciplina()
     try:
-        with open(caminho, "r", encoding="utf-8") as f:
-            linhas = f.readlines()
-    except FileNotFoundError:
-        print("Nenhuma disciplina cadastrada ainda.")
-        return
-
-    if not linhas:
-        print("Nenhuma disciplina cadastrada ainda.")
-        return
-
-    print("\nDisciplinas cadastradas:")
-    for i, linha in enumerate(linhas, start=1):
-        try:
-            nome, turno, sala, professor = linha.strip().split(";")
-            print(f"{i}. {nome} | Turno: {turno} | Sala: {sala} | Professor: {professor}")
-        except ValueError:
-            continue
-
-    try:
-        indice = int(input("\nDigite o número da disciplina que deseja excluir: "))
-        if indice < 1 or indice > len(linhas):
-            print("Número inválido.")
-            return
+        disc_id = int(input("Digite o ID da disciplina que deseja editar: ").strip())
     except ValueError:
-        print("Entrada inválida. Digite um número.")
+        print("ID inválido.")
         return
+    disc = executar_query("SELECT * FROM disciplinas WHERE id = ?", (disc_id,), fetchone=True)
+    if not disc:
+        print("Disciplina não encontrada.")
+        return
+    novo_nome = input(f"Novo nome [{disc['nome']}]: ").strip() or disc['nome']
+    novo_turno = input(f"Novo turno [{disc['turno'] or 'vazio'}]: ").strip() or disc['turno']
+    nova_sala = input(f"Nova sala [{disc['sala'] or 'vazio'}]: ").strip() or disc['sala']
+    novo_prof = input(f"Novo professor [{disc['professor'] or 'vazio'}]: ").strip() or disc['professor']
 
-    linha_remover = linhas[indice - 1]
-    nome, turno, sala, professor = linha_remover.strip().split(";")
+    executar_query(
+        "UPDATE disciplinas SET nome = ?, turno = ?, sala = ?, professor = ? WHERE id = ?",
+        (novo_nome, novo_turno, nova_sala, novo_prof, disc_id),
+    )
+    print("Disciplina atualizada com sucesso.")
 
-    confirmar = input(
-        f"\nConfirma a exclusão da disciplina '{nome}' (Professor: {professor})? [S/N]: "
-    ).strip().lower()
 
+def excluir_disciplina():
+    limpar_tela()
+    print("------ Excluir disciplina -------")
+    listar_disciplina()
+    try:
+        disc_id = int(input("Digite o ID da disciplina que deseja excluir: ").strip())
+    except ValueError:
+        print("ID inválido.")
+        return
+    disc = executar_query("SELECT * FROM disciplinas WHERE id = ?", (disc_id,), fetchone=True)
+    if not disc:
+        print("Disciplina não encontrada.")
+        return
+    confirmar = input(f"Confirma exclusão da disciplina '{disc['nome']}'? [S/N]: ").strip().lower()
     if confirmar != "s":
-        print("\nOperação cancelada.")
+        print("Operação cancelada.")
         return
+    executar_query("DELETE FROM disciplinas WHERE id = ?", (disc_id,))
+    print("Disciplina removida com sucesso.")
 
-    novas_linhas = [l for i, l in enumerate(linhas) if i != indice - 1]
 
-    with open(caminho, "w", encoding="utf-8") as f:
-        f.writelines(novas_linhas)
-
-    print(f"\nDisciplina '{nome}' removida com sucesso!")
-
-# ------------------- Menu disciplinas -------------------
 def menu_disciplina():
     while True:
-        from funcoes import limpar_tela
         limpar_tela()
-        print("===== MENU Disciplina=====")
+        print("===== MENU Disciplina =====")
         print("1 - Cadastrar disciplina")
         print("2 - Listar disciplina")
         print("3 - Editar disciplina")
         print("4 - Excluir disciplina")
         print("5 - Voltar")
-
-        opcao = input("Escolha uma opção: ")
-
+        opcao = input("Escolha uma opção: ").strip()
         if opcao == "1":
             cadastrar_disciplina()
         elif opcao == "2":
@@ -133,7 +103,4 @@ def menu_disciplina():
             break
         else:
             print("Opção inválida! Tente novamente.\n")
-            input("ENTER para continuar...")
-            continue
-
-        input("\nENTER para voltar ao menu de disciplinas...")
+        input("\nENTER para continuar...")
