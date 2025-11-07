@@ -21,7 +21,7 @@ def cadastrar_disciplina():
         )
         print("\nDisciplina cadastrada com sucesso!")
     except sqlite3.IntegrityError:
-        print("\n❌ Erro ao cadastrar disciplina.")
+        print("\nErro ao cadastrar disciplina.")
 
 
 def listar_disciplina():
@@ -104,3 +104,4 @@ def menu_disciplina():
         else:
             print("Opção inválida! Tente novamente.\n")
         input("\nENTER para continuar...")
+
