@@ -22,7 +22,7 @@ def cadastrar_aluno():
         )
         print("\nAluno cadastrado com sucesso!")
     except sqlite3.IntegrityError:
-        print("\n❌ Matrícula já cadastrada. Operação cancelada.")
+        print("\nMatrícula já cadastrada. Operação cancelada.")
 
 
 def listar_alunos():
@@ -102,3 +102,4 @@ def menu_alunos():
         else:
             print("Opção inválida! Tente novamente.\n")
         input("\nENTER para continuar...")
+
