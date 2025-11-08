@@ -1,26 +1,22 @@
 import sqlite3
 import os
 import re
+import csv
+from datetime import datetime
 
 DB_PATH = "banco_de_dados/banco_escolar.db"
 
-
-def limpar_tela():
-    """Limpa a tela (compatível com Windows, Linux e macOS)."""
-    os.system("cls" if os.name == "nt" else "clear")
-
-
+# Cria pasta de banco se necessario e retorna conexao com sqlite3.
 def conectar():
-    """Cria pasta de banco se necessário e retorna conexão com sqlite3."""
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # permite acessar colunas por nome
+    conn.row_factory = sqlite3.Row
     criar_tabelas(conn)
     return conn
 
 
+# Cria tabelas basicas se nao existirem.
 def criar_tabelas(conn):
-    """Cria tabelas básicas se não existirem."""
     cur = conn.cursor()
     cur.execute(
         """
@@ -74,20 +70,17 @@ def executar_query(query, params=(), fetchone=False, fetchall=False):
             return cur.fetchall()
         return cur.lastrowid
     except sqlite3.IntegrityError as e:
+        # repropaga para o chamador
         raise
     finally:
         conn.close()
 
-
-def validar_matricula(prompt="Digite a matrícula (12 dígitos): "):
-    """Valida matrícula com exatamente 12 dígitos."""
+# Valida matricula recebida deve ser exatamente 12 digitos.
+def validar_matricula_string(matricula_str):
+    if matricula_str is None:
+        return False
     padrao = re.compile(r"^\d{12}$")
-    while True:
-        matricula = input(prompt).strip()
-        if padrao.match(matricula):
-            return matricula
-        else:
-            print("Matrícula inválida! Digite exatamente 12 números.\n")
+    return bool(padrao.match(matricula_str.strip()))
 
 
 # ---------- Helpers para menus e buscas ----------
@@ -124,3 +117,36 @@ def obter_aluno_por_id(aluno_id):
         (aluno_id,),
         fetchone=True,
     )
+
+
+# ---------- Exportacoe CSV ----------
+def exportar_dados_csv(folder=None):
+    folder = folder or "exportacoes"
+    os.makedirs(folder, exist_ok=True)
+
+    alunos = [dict(r) for r in listar_alunos_todos()]
+    disciplinas = [dict(r) for r in listar_disciplinas_todas()]
+    notas = [dict(r) for r in executar_query("SELECT * FROM notas", fetchall=True) or []]
+
+    path_alunos = os.path.join(folder, "alunos.csv")
+    with open(path_alunos, "w", newline='', encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "nome", "matricula", "data_nascimento"])
+        writer.writeheader()
+        for a in alunos:
+            writer.writerow(a)
+
+    path_disciplinas = os.path.join(folder, "disciplinas.csv")
+    with open(path_disciplinas, "w", newline='', encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "nome", "turno", "sala", "professor"])
+        writer.writeheader()
+        for d in disciplinas:
+            writer.writerow(d)
+
+    path_notas = os.path.join(folder, "notas.csv")
+    with open(path_notas, "w", newline='', encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "aluno_id", "disciplina_id", "nota"])
+        writer.writeheader()
+        for n in notas:
+            writer.writerow(n)
+
+    return (path_alunos, path_disciplinas, path_notas)
