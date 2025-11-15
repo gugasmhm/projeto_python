@@ -9,7 +9,7 @@ DB_PATH = "banco_de_dados/banco_escolar.db"
 # ----------------- UTILIDADES -----------------
 
 def limpar_tela():
-    """Limpa a tela (Windows/Linux/macOS)."""
+    """Limpa a tela."""
     os.system("cls" if os.name == "nt" else "clear")
 
 
@@ -156,3 +156,4 @@ def exportar_csv(nome_arquivo, colunas, dados):
 
     print(f"\nArquivo exportado com sucesso: {caminho}")
     return caminho
+
