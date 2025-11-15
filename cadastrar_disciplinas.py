@@ -1,120 +1,130 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from funcoes import executar_query, listar_disciplinas_todas, obter_disciplina_por_id
+from funcoes import (
+    limpar_tela,
+    executar_query,
+    listar_disciplinas_todas,
+    exportar_csv
+)
 import sqlite3
 
 
-def abrir_tela_disciplinas(parent):
-    win = tk.Toplevel(parent)
-    win.title("Menu Disciplinas")
-    win.geometry("690x420")
-    win.transient(parent)
+def cadastrar_disciplina():
+    limpar_tela()
+    print("------ Cadastro de disciplinas -------")
 
-    frame = ttk.Frame(win, padding=8)
-    frame.pack(fill="both", expand=True)
+    nome = input("Nome da disciplina: ").strip()
+    turno = input("Turno (Manhã/Tarde/Noite) (opcional): ").strip() or None
+    sala = input("Sala (opcional): ").strip() or None
+    professor = input("Professor (opcional): ").strip() or None
 
-    cols = ("id", "nome", "turno", "sala", "professor")
-    tree = ttk.Treeview(frame, columns=cols, show="headings", selectmode="browse")
-    for c in cols:
-        tree.heading(c, text=c.capitalize())
-        tree.column(c, anchor="w", width=120 if c != "nome" else 220)
-    tree.pack(fill="both", expand=True, side="left")
+    try:
+        executar_query(
+            "INSERT INTO disciplinas (nome, turno, sala, professor) VALUES (?, ?, ?, ?)",
+            (nome, turno, sala, professor),
+        )
+        print("\nDisciplina cadastrada com sucesso!")
+    except sqlite3.Error:
+        print("\nErro ao cadastrar disciplina.")
 
-    vsb = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
-    tree.configure(yscrollcommand=vsb.set)
-    vsb.pack(side="left", fill="y")
 
-    def carregar():
-        for i in tree.get_children():
-            tree.delete(i)
-        rows = listar_disciplinas_todas()
-        for r in rows:
-            tree.insert("", "end", values=(r["id"], r["nome"], r["turno"], r["sala"], r["professor"]))
+def listar_disciplina():
+    limpar_tela()
+    print("------ Lista de disciplinas -------")
 
-    def adicionar():
-        form = tk.Toplevel(win)
-        form.title("Adicionar Disciplina")
-        form.transient(win)
-        ttk.Label(form, text="Nome:").grid(row=0, column=0, sticky="w", padx=6, pady=6)
-        nome_e = ttk.Entry(form, width=40); nome_e.grid(row=0, column=1, padx=6, pady=6)
-        ttk.Label(form, text="Turno (Manhã/Tarde/Noite):").grid(row=1, column=0, sticky="w", padx=6, pady=6)
-        turno_e = ttk.Entry(form, width=20); turno_e.grid(row=1, column=1, padx=6, pady=6, sticky="w")
-        ttk.Label(form, text="Sala:").grid(row=2, column=0, sticky="w", padx=6, pady=6)
-        sala_e = ttk.Entry(form, width=20); sala_e.grid(row=2, column=1, padx=6, pady=6, sticky="w")
-        ttk.Label(form, text="Professor:").grid(row=3, column=0, sticky="w", padx=6, pady=6)
-        prof_e = ttk.Entry(form, width=30); prof_e.grid(row=3, column=1, padx=6, pady=6, sticky="w")
+    rows = listar_disciplinas_todas()
+    if not rows:
+        print("Nenhuma disciplina cadastrada.")
+        return
 
-        def salvar():
-            nome = nome_e.get().strip()
-            turno = turno_e.get().strip() or None
-            sala = sala_e.get().strip() or None
-            prof = prof_e.get().strip() or None
-            if not nome:
-                messagebox.showwarning("Validação", "Nome da disciplina obrigatório.", parent=form); return
-            try:
-                executar_query("INSERT INTO disciplinas (nome, turno, sala, professor) VALUES (?, ?, ?, ?)", (nome, turno, sala, prof))
-                messagebox.showinfo("OK", "Disciplina cadastrada.", parent=form)
-                form.destroy()
-                carregar()
-            except sqlite3.IntegrityError:
-                messagebox.showerror("Erro", "Erro ao cadastrar disciplina.", parent=form)
+    for d in rows:
+        print(f"{d['id']}. {d['nome']} | Turno: {d['turno']} | Sala: {d['sala']} | Professor: {d['professor']}")
 
-        ttk.Button(form, text="Salvar", command=salvar).grid(row=4, column=0, pady=10, padx=6)
-        ttk.Button(form, text="Cancelar", command=form.destroy).grid(row=4, column=1, pady=10, padx=6, sticky="e")
 
-    def editar():
-        sel = tree.selection()
-        if not sel:
-            messagebox.showwarning("Seleção", "Selecione uma disciplina.", parent=win); return
-        item = tree.item(sel[0])["values"]
-        did = item[0]
-        disc = obter_disciplina_por_id(did)
-        if not disc:
-            messagebox.showerror("Erro", "Disciplina não encontrada.", parent=win); return
+def editar_disciplina():
+    listar_disciplina()
 
-        form = tk.Toplevel(win)
-        form.title("Editar Disciplina")
-        form.transient(win)
-        ttk.Label(form, text="Nome:").grid(row=0, column=0, sticky="w", padx=6, pady=6)
-        nome_e = ttk.Entry(form, width=40); nome_e.insert(0, disc["nome"]); nome_e.grid(row=0, column=1, padx=6, pady=6)
-        ttk.Label(form, text="Turno (Manhã/Tarde/Noite):").grid(row=1, column=0, sticky="w", padx=6, pady=6)
-        turno_e = ttk.Entry(form, width=20); turno_e.insert(0, disc["turno"] or ""); turno_e.grid(row=1, column=1, padx=6, pady=6, sticky="w")
-        ttk.Label(form, text="Sala:").grid(row=2, column=0, sticky="w", padx=6, pady=6)
-        sala_e = ttk.Entry(form, width=20); sala_e.insert(0, disc["sala"] or ""); sala_e.grid(row=2, column=1, padx=6, pady=6, sticky="w")
-        ttk.Label(form, text="Professor:").grid(row=3, column=0, sticky="w", padx=6, pady=6)
-        prof_e = ttk.Entry(form, width=30); prof_e.insert(0, disc["professor"] or ""); prof_e.grid(row=3, column=1, padx=6, pady=6, sticky="w")
+    try:
+        disc_id = int(input("ID da disciplina para editar: ").strip())
+    except ValueError:
+        print("ID inválido.")
+        return
 
-        def salvar():
-            nome = nome_e.get().strip()
-            turno = turno_e.get().strip() or None
-            sala = sala_e.get().strip() or None
-            prof = prof_e.get().strip() or None
-            if not nome:
-                messagebox.showwarning("Validação", "Nome obrigatório.", parent=form); return
-            executar_query("UPDATE disciplinas SET nome = ?, turno = ?, sala = ?, professor = ? WHERE id = ?", (nome, turno, sala, prof, did))
-            messagebox.showinfo("OK", "Disciplina atualizada.", parent=form)
-            form.destroy()
-            carregar()
+    disc = executar_query("SELECT * FROM disciplinas WHERE id = ?", (disc_id,), fetchone=True)
 
-        ttk.Button(form, text="Salvar", command=salvar).grid(row=4, column=0, pady=10, padx=6)
-        ttk.Button(form, text="Cancelar", command=form.destroy).grid(row=4, column=1, pady=10, padx=6, sticky="e")
+    if not disc:
+        print("Disciplina não encontrada.")
+        return
 
-    def excluir():
-        sel = tree.selection()
-        if not sel:
-            messagebox.showwarning("Seleção", "Selecione uma disciplina.", parent=win); return
-        item = tree.item(sel[0])["values"]
-        did = item[0]; nome = item[1]
-        if messagebox.askyesno("Confirma", f"Confirma exclusão de {nome}?", parent=win):
-            executar_query("DELETE FROM disciplinas WHERE id = ?", (did,))
-            messagebox.showinfo("OK", "Disciplina excluída.", parent=win)
-            carregar()
+    novo_nome = input(f"Novo nome [{disc['nome']}]: ").strip() or disc['nome']
+    novo_turno = input(f"Novo turno [{disc['turno'] or 'vazio'}]: ").strip() or disc['turno']
+    nova_sala = input(f"Nova sala [{disc['sala'] or 'vazio'}]: ").strip() or disc['sala']
+    novo_prof = input(f"Novo professor [{disc['professor'] or 'vazio'}]: ").strip() or disc['professor']
 
-    btns = ttk.Frame(win, padding=6)
-    btns.pack(fill="x")
-    ttk.Button(btns, text="Adicionar", command=adicionar).pack(side="left", padx=4)
-    ttk.Button(btns, text="Editar", command=editar).pack(side="left", padx=4)
-    ttk.Button(btns, text="Excluir", command=excluir).pack(side="left", padx=4)
-    ttk.Button(btns, text="Fechar", command=win.destroy).pack(side="right", padx=4)
+    executar_query(
+        "UPDATE disciplinas SET nome = ?, turno = ?, sala = ?, professor = ? WHERE id = ?",
+        (novo_nome, novo_turno, nova_sala, novo_prof, disc_id),
+    )
+    print("Disciplina atualizada.")
 
-    carregar()
+
+def excluir_disciplina():
+    listar_disciplina()
+
+    try:
+        disc_id = int(input("ID da disciplina para excluir: ").strip())
+    except ValueError:
+        print("ID inválido.")
+        return
+
+    disc = executar_query("SELECT * FROM disciplinas WHERE id = ?", (disc_id,), fetchone=True)
+    if not disc:
+        print("Disciplina não encontrada.")
+        return
+
+    confirmar = input(f"Confirma excluir '{disc['nome']}'? [S/N]: ").strip().lower()
+    if confirmar != "s":
+        print("Operação cancelada.")
+        return
+
+    executar_query("DELETE FROM disciplinas WHERE id = ?", (disc_id,))
+    print("Disciplina removida.")
+
+
+def exportar_disciplinas_csv():
+    dados = listar_disciplinas_todas()
+    if not dados:
+        print("Nenhum dado para exportar.")
+        return
+
+    colunas = ["id", "nome", "turno", "sala", "professor"]
+    exportar_csv("disciplinas.csv", colunas, dados)
+
+
+def menu_disciplina():
+    while True:
+        limpar_tela()
+        print("===== MENU Disciplinas =====")
+        print("1 - Cadastrar disciplina")
+        print("2 - Listar disciplinas")
+        print("3 - Editar disciplina")
+        print("4 - Excluir disciplina")
+        print("5 - Exportar CSV")
+        print("6 - Voltar")
+
+        opcao = input("Escolha uma opção: ").strip()
+
+        if opcao == "1":
+            cadastrar_disciplina()
+        elif opcao == "2":
+            listar_disciplina()
+        elif opcao == "3":
+            editar_disciplina()
+        elif opcao == "4":
+            excluir_disciplina()
+        elif opcao == "5":
+            exportar_disciplinas_csv()
+        elif opcao == "6":
+            break
+        else:
+            print("Opção inválida!")
+
+        input("\nENTER para continuar...")

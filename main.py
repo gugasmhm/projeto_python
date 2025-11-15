@@ -1,45 +1,51 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from funcoes import exportar_dados_csv
-from cadastrar_alunos import abrir_tela_alunos
-from cadastrar_disciplinas import abrir_tela_disciplinas
-from cadastrar_notas import abrir_tela_notas
-import sys
+# ------------------- Menu Principal -------------------
+from funcoes import limpar_tela
 
-root = tk.Tk()
-root.title("Sistema de Cadastro Escolar")
-root.geometry("480x300")
-root.resizable(False, False)
 
-frame = ttk.Frame(root, padding=16)
-frame.pack(fill="both", expand=True)
+def menu():
+    while True:
+        limpar_tela()
 
-ttk.Label(frame, text="Sistema de Cadastro Escolar", font=("Segoe UI", 14)).pack(pady=(0, 8))
+        print(f"{'  =@@@@@@*          *@:     =@-           -@@-         ':^80}")
+        print(f"{' +@#:      =*****+:*%@#* :******   :+**** :++:  +*#*+: ':^80}")
+        print(f"{' %@@@@@@@*-@%:      *@:        @@ -@#:    -@@- @@:  *@=':^80}")
+        print(f"{' +@#-      :+***@%  *@:  =@%***@@ -@*     -@@- @@   *@+':^80}")
+        print(f"{'  -%@@@@@+-%@@@@@*  =@@@ -@@@@@@@  =%@@@@ -@@- -@@@@@= ':^80}")
+        print("")
+        print("===== MENU Principal =====")
+        print("1 - Menu Aluno")
+        print("2 - Menu Disciplinas")
+        print("3 - Menu Notas")
+        print("4 - Consulta Notas")
+        print("5 - Sair")
 
-btn_frame = ttk.Frame(frame)
-btn_frame.pack(pady=6)
+        opcao = input("Escolha uma opção: ")
 
-ttk.Button(btn_frame, text="Cadastro de Alunos", width=28, command=lambda: abrir_tela_alunos(root)).grid(row=0, column=0, padx=6, pady=6)
-ttk.Button(btn_frame, text="Cadastro de Disciplinas", width=28, command=lambda: abrir_tela_disciplinas(root)).grid(row=1, column=0, padx=6, pady=6)
-ttk.Button(btn_frame, text="Cadastro de Notas", width=28, command=lambda: abrir_tela_notas(root)).grid(row=2, column=0, padx=6, pady=6)
+        if opcao == "1":
+            from cadastrar_alunos import menu_alunos
+            menu_alunos()
 
-sep = ttk.Separator(frame, orient="horizontal")
-sep.pack(fill="x", pady=12)
+        elif opcao == "2":
+            from cadastrar_disciplinas import menu_disciplina
+            menu_disciplina()
 
-exp_frame = ttk.Frame(frame)
-exp_frame.pack(fill="x", pady=6)
-ttk.Label(exp_frame, text="Exportar dados (arquivo):").pack(anchor="w")
+        elif opcao == "3":
+            from cadastrar_notas import menu_notas
+            menu_notas()
 
-def do_csv():
-    try:
-        paths = exportar_dados_csv()
-        messagebox.showinfo("Exportado", f"Arquivos CSV salvos em:\n{paths}", parent=root)
-    except Exception as e:
-        messagebox.showerror("Erro", f"Falha ao exportar CSV:\n{e}", parent=root)
+        elif opcao == "4":
+            from consultar_notas import consultar_nota
+            consultar_nota()
 
-btn_e = ttk.Frame(exp_frame)
-btn_e.pack(fill="x", pady=6)
-ttk.Button(btn_e, text="Exportar CSV", command=do_csv).pack(side="left", padx=6)
+        elif opcao == "5":
+            print("Saindo do sistema...")
+            break
+
+        else:
+            print("Opção inválida! Tente novamente.\n")
+
+        input("Pressione ENTER para continuar...")
+
 
 if __name__ == "__main__":
-    root.mainloop()
+    menu()
