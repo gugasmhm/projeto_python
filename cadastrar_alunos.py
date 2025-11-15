@@ -43,7 +43,7 @@ def editar_aluno():
     limpar_tela()
     print("------ Editar Aluno -------")
 
-    # Agora SEMPRE edita usando matrícula
+    # Edita usando matrícula
     matricula = validar_matricula("Digite a matrícula do aluno que deseja editar (12 dígitos): ")
 
     aluno = executar_query(
@@ -138,3 +138,4 @@ def menu_alunos():
             print("Opção inválida!")
 
         input("\nENTER para continuar...")
+
