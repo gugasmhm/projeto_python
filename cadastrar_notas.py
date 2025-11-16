@@ -7,9 +7,6 @@ from funcoes import (
 import sqlite3
 
 
-# -------------------------------------------------------------
-# Selecionar Aluno (por Matricula)
-# -------------------------------------------------------------
 def escolher_aluno_por_matricula():
     print("------ Selecionar Aluno pela Matrícula ------")
     mat = input("Digite a matrícula do aluno (12 dígitos): ").strip()
@@ -28,9 +25,6 @@ def escolher_aluno_por_matricula():
     return aluno
 
 
-# -------------------------------------------------------------
-# Listar disciplinas e escolher diretamente pelo ID
-# -------------------------------------------------------------
 def escolher_disciplina_por_id():
     print("------ Selecionar Disciplina -------")
 
@@ -62,9 +56,6 @@ def escolher_disciplina_por_id():
     return disc
 
 
-# -------------------------------------------------------------
-# Cadastrar Nota
-# -------------------------------------------------------------
 def cadastrar_nota():
     limpar_tela()
     print("------ Cadastro de Notas (por matrícula) -------")
@@ -97,9 +88,6 @@ def cadastrar_nota():
         print("Erro ao cadastrar nota.")
 
 
-# -------------------------------------------------------------
-# Listar Notas
-# -------------------------------------------------------------
 def listar_notas():
     limpar_tela()
     print("------ Listar Notas -------")
@@ -122,9 +110,6 @@ def listar_notas():
               f"Disciplina: {r['disciplina']} | Nota: {r['nota']}")
 
 
-# -------------------------------------------------------------
-# Editar Nota
-# -------------------------------------------------------------
 def editar_nota():
     listar_notas()
 
@@ -163,9 +148,6 @@ def editar_nota():
     print("Nota atualizada com sucesso.")
 
 
-# -------------------------------------------------------------
-# Excluir Nota
-# -------------------------------------------------------------
 def excluir_nota():
     listar_notas()
 
@@ -200,9 +182,6 @@ def excluir_nota():
     print("Nota removida com sucesso.")
 
 
-# -------------------------------------------------------------
-# Exportar CSV
-# -------------------------------------------------------------
 def exportar_notas_csv():
     rows = executar_query("""
         SELECT n.id, a.nome AS aluno, a.matricula,
@@ -220,9 +199,6 @@ def exportar_notas_csv():
     exportar_csv("notas.csv", colunas, rows)
 
 
-# -------------------------------------------------------------
-# Menu
-# -------------------------------------------------------------
 def menu_notas():
     while True:
         limpar_tela()
@@ -252,4 +228,5 @@ def menu_notas():
             print("Opção inválida!")
 
         input("\nENTER para continuar...")
+
 
