@@ -8,7 +8,7 @@ import sqlite3
 
 
 # -------------------------------------------------------------
-# Selecionar aluno APENAS pela matrícula
+# Selecionar Aluno (por Matricula)
 # -------------------------------------------------------------
 def escolher_aluno_por_matricula():
     print("------ Selecionar Aluno pela Matrícula ------")
@@ -252,3 +252,4 @@ def menu_notas():
             print("Opção inválida!")
 
         input("\nENTER para continuar...")
+
