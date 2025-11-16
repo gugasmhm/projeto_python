@@ -7,12 +7,12 @@ DB_PATH = "banco_de_dados/banco_escolar.db"
 
 
 # ----------------- UTILIDADES -----------------
-
+# Limpa a Tela
 def limpar_tela():
     """Limpa a tela."""
     os.system("cls" if os.name == "nt" else "clear")
 
-
+# Conector SQL
 def conectar():
     """Conecta ao SQLite e cria tabelas se necessário."""
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -21,7 +21,7 @@ def conectar():
     criar_tabelas(conn)
     return conn
 
-
+# Cria Tabelas
 def criar_tabelas(conn):
     """Cria todas as tabelas caso ainda não existam."""
     cur = conn.cursor()
@@ -58,7 +58,7 @@ def criar_tabelas(conn):
 
     conn.commit()
 
-
+#  Multi Comando SQL
 def executar_query(query, params=(), fetchone=False, fetchall=False):
     """Executa comando SQL genérico e controla retorno."""
     conn = conectar()
@@ -83,6 +83,7 @@ def executar_query(query, params=(), fetchone=False, fetchall=False):
 
 # ----------------- VALIDAÇÕES -----------------
 
+# REGEX
 def validar_matricula(prompt="Digite a matrícula (12 dígitos): "):
     """Valida matrícula com 12 números."""
     padrao = re.compile(r"^\d{12}$")
@@ -95,6 +96,7 @@ def validar_matricula(prompt="Digite a matrícula (12 dígitos): "):
 
 # ----------------- FUNÇÕES DE BUSCA -----------------
 
+# Busca Matricula
 def obter_aluno_por_matricula(matricula):
     return executar_query(
         "SELECT * FROM alunos WHERE matricula = ?",
@@ -102,7 +104,7 @@ def obter_aluno_por_matricula(matricula):
         fetchone=True,
     )
 
-
+# Busca ID Aluno (nao usado)
 def obter_aluno_por_id(aluno_id):
     return executar_query(
         "SELECT * FROM alunos WHERE id = ?",
@@ -111,6 +113,7 @@ def obter_aluno_por_id(aluno_id):
     )
 
 
+# Listar Alunos
 def listar_alunos_todos():
     rows = executar_query(
         "SELECT * FROM alunos ORDER BY nome",
@@ -118,7 +121,7 @@ def listar_alunos_todos():
     )
     return rows or []
 
-
+# Listar Disciplinas
 def listar_disciplinas_todas():
     rows = executar_query(
         "SELECT * FROM disciplinas ORDER BY nome",
@@ -126,7 +129,7 @@ def listar_disciplinas_todas():
     )
     return rows or []
 
-
+# Busca ID Disciplina
 def obter_disciplina_por_id(disc_id):
     return executar_query(
         "SELECT * FROM disciplinas WHERE id = ?",
@@ -156,4 +159,5 @@ def exportar_csv(nome_arquivo, colunas, dados):
 
     print(f"\nArquivo exportado com sucesso: {caminho}")
     return caminho
+
 
